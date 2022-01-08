@@ -6,6 +6,7 @@
                "cl-csv"
                "cl-ppcre"
                "cl-reexport"
+               "quri"
                "weblocks"
                "weblocks-lass"
                "weblocks-parenscript"
@@ -38,7 +39,8 @@
                              (:file "table")
                              (:file "object-list")
                              (:file "property")))
-               (:file "tkview"))
+               (:file "tkview")
+               (:file "object-url"))
   :description "Common Lisp Web Views with Weblocks."
   :in-order-to ((test-op (test-op "tkview/test"))))
 

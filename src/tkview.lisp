@@ -1,5 +1,7 @@
 (defpackage tkview
-  (:use :cl))
+  (:use :cl)
+  (:export #:object-url
+           ))
 (in-package :tkview)
 
 (cl-reexport:reexport-from :tkview.parts.command-menu-bar)
