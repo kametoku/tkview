@@ -30,13 +30,18 @@
                      :deny-label "Cancel"
                      :on-approve #'update-object))
 
-;; (defun edit-modal-title (object)
-;;   (let ((code (ignore-errors (tkmito.model:code object)))
-;;         (id (ignore-errors  (mito:object-id object))))
-;;     (format nil "Edit ~:(~A~)~:[ #~A~;~:* ~A~]" (type-of object) code id)))
-(defmethod edit-modal-title (object)
-  (let ((id (ignore-errors (mito:object-id object))))
-    (format nil "Edit ~:(~A~) #~A" (type-of object) id)))
+(defgeneric edit-modal-title (object)
+  (:documentation "Returns the title string of edit modal for OBJECT.")
+  (:method (object)
+    (format nil "Edit ~:(~A~)" (type-of object)))
+  (:method ((object mito:dao-table-class))
+    (let ((id (mito:object-id object)))
+      (format nil "Edit ~:(~A~) #~A" (type-of object) id)))
+  (:method ((object tkmito.mixin:has-code))
+    (let ((code (tkmito.mixin:code object)))
+      (if code
+          (format nil "Edit ~:(~A~) ~A" (type-of object) code)
+          (call-next-method)))))
 
 (defmethod initialize-instance :around ((widget edit-modal) &rest args
                                         &key object (title (edit-modal-title object))
