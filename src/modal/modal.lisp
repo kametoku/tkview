@@ -154,7 +154,8 @@ to show the result in flash or toast."
                   :onclick on-approve
                   :href (href widget) :target (target widget)
                   approve-label
-                  (when approve-icon (:i :class "checkmark icon"))))))))
+                  (when approve-icon
+                    (:i :class (format nil "~A icon" approve-icon)))))))))
 
 (defmethod render-modal ((widget modal-widget))
   (progn
