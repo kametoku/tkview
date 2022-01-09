@@ -76,16 +76,15 @@ Otherwise, returns nil.")
                          (tkutil:ensure-value extra-class object))))
       (when (and modal confirm)
         (error "Arguments modal and confirm can't be used together."))
-      ;; TODO
       (when confirm
-        (setf modal (apply #'tkview.modal.confirm-modal:make-confirm-modal
+        (setf modal (apply #'tkview.modal.confirm:make-confirm-modal
                            :message confirm make-modal-args)))
       (when modal
-        (check-type modal tkview.modal.command-modal:command-modal)
+        (check-type modal tkview.modal:modal-widget)
         (if onclick
             (error "Cannot use onclick argument with modal or confirm argument."))
         (setf href nil target nil)
-        (setf onclick (tkview.modal.command-modal:show-modal modal)))
+        (setf onclick (tkview.modal:show-modal modal)))
       (with-html
         (:a :class (format nil "~{~A~^ ~}" (append extra-class disabled '("item")))
             :onclick onclick :href href :target target

@@ -1,4 +1,4 @@
-(defpackage :tkview.modal.command-modal
+(defpackage :tkview.modal
   (:use :cl)
   (:import-from :weblocks/widget
                 :defwidget
@@ -6,7 +6,7 @@
                 :update)
   (:import-from :weblocks/html
                 :with-html)
-  (:export #:command-modal
+  (:export #:modal-widget
            #:object
            #:parent
            #:render-title
@@ -15,9 +15,9 @@
            #:render-form-content
            #:update-modal
            #:show-modal))
-(in-package :tkview.modal.command-modal)
+(in-package :tkview.modal)
 
-(defwidget command-modal (fui.modules:modal-widget)
+(defwidget modal-widget (fui.modules:modal-widget)
   ((object :initarg :object :initform nil :reader object)
    (parent :initarg :parent :initform nil :reader parent)
    (on-show :initarg :on-show :initform nil :reader on-show)
@@ -32,7 +32,7 @@
    (use-form-p :initarg :use-form-p :initform nil :reader use-form-p)
    (rendered-p :initarg :rendered-p :initform nil :accessor rendered-p)))
 
-(defmethod initialize-instance :after ((widget command-modal) &rest args)
+(defmethod initialize-instance :after ((widget modal-widget) &rest args)
   (declare (ignore args))
   ;; Make sure that the mdandatory slots are given.
   (with-slots (object parent) widget
@@ -44,16 +44,16 @@
     ;; render modal widget anyway. (no pnopone)
     (render widget)))
 
-(defmethod fui.modules:init-parameters ((widget command-modal))
+(defmethod fui.modules:init-parameters ((widget modal-widget))
   '(on-approve (lambda (element)
                  ;; don't close modal on approval to validate input
                  ;; data before submit the form.
                  ps:false)))
 
-(defmethod fui.modules:default-div-class ((widget command-modal))
+(defmethod fui.modules:default-div-class ((widget modal-widget))
   "ui top aligned modal")
 
-(defmethod render-title ((widget command-modal))
+(defmethod render-title ((widget modal-widget))
   (let ((title-icon (format nil "~@[~A icon~]" (title-icon widget))))
     (with-html
       (:i :class "close icon")
@@ -62,7 +62,7 @@
               (:i :class title-icon))
             (title widget)))))
 
-(defmethod render-content ((widget command-modal))
+(defmethod render-content ((widget modal-widget))
   (with-html
     (:div :class "content"
           (:div :class "ui inverted red segment"
@@ -135,7 +135,7 @@ to show the result in flash or toast."
                     (screen-lock)
                     ,@(cdr js-code)))))))
 
-(defmethod render-action ((widget command-modal))
+(defmethod render-action ((widget modal-widget))
   (let ((on-approve (js-event-handler widget (on-approve widget)))
         (deny-label (deny-label widget))
         (approve-label (approve-label widget))
@@ -156,16 +156,16 @@ to show the result in flash or toast."
                   approve-label
                   (when approve-icon (:i :class "checkmark icon"))))))))
 
-(defmethod render-modal ((widget command-modal))
+(defmethod render-modal ((widget modal-widget))
   (progn
     (render-title widget)
     (render-content widget)
     (render-action widget)))
 
-(defmethod render-form-content ((widget command-modal))
+(defmethod render-form-content ((widget modal-widget))
   (render-content widget))
 
-(defmethod render-form ((widget command-modal))
+(defmethod render-form ((widget modal-widget))
   (let ((form-id (lack.util:generate-random-id))
         (approve-icon (approve-icon widget)))
     (with-html
@@ -190,12 +190,12 @@ to show the result in flash or toast."
                      (when approve-icon
                        (:i :class (format nil "~A icon" approve-icon))))))))
 
-(defmethod weblocks/widget:render ((widget command-modal))
+(defmethod weblocks/widget:render ((widget modal-widget))
   (if (use-form-p widget)
       (render-form widget)
       (render-modal widget)))
 
-(defmethod show-modal ((widget command-modal))
+(defmethod show-modal ((widget modal-widget))
   "Returns weblocks action that shows the modal."
   (weblocks/actions:make-js-action
    (lambda (&rest args)

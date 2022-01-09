@@ -1,4 +1,4 @@
-(defpackage :tkview.modal.email-auth-modal
+(defpackage :tkview.modal.email-auth
   (:use :cl :attribute ;; :furano.widgets
         )
   (:import-from :weblocks/widget
@@ -13,7 +13,7 @@
            :prompt-for-email
            :prompt-for-phrase
            :make-email-auth-modal))
-(in-package :tkview.modal.email-auth-modal)
+(in-package :tkview.modal.email-auth)
 
 (defparameter *expiration-minutes* 10)
 
@@ -57,7 +57,7 @@
                    :name "email" :placeholder "Email address"
                    :type "email" :required t))))
 
-(defwidget email-auth-modal (tkview.modal.edit-modal:edit-modal)
+(defwidget email-auth-modal (tkview.modal.edit:edit-modal)
   ()
   (:default-initargs :object (make-instance 'email-auth)
                      :row-formatter #'email-auth-attributes
@@ -78,8 +78,8 @@
 (defmethod prompt-for-phrase ((widget email-auth-modal))
   "You will receive a phrase to verify here.")
 
-(defmethod tkview.modal.edit-modal:description ((widget email-auth-modal))
-  (let ((object (tkview.modal.command-modal:object widget)))
+(defmethod tkview.modal.edit:description ((widget email-auth-modal))
+  (let ((object (tkview.modal:object widget)))
     (check-type object email-auth)
     (if (email object)
         (prompt-for-phrase widget)
@@ -88,7 +88,7 @@
 (defun on-approve (object &rest args &key widget &allow-other-keys)
   (check-type object email-auth)
   (check-type widget email-auth-modal)
-  (apply #'tkview.modal.edit-modal:update-object object args)
+  (apply #'tkview.modal.edit:update-object object args)
   (let ((phrase (phrase object))
         (email (email object)))
     (cond (phrase
@@ -97,7 +97,7 @@
            (list "success" :message "Phrase matched."))
           (email
            (on-email-filled widget :email email :phrase (expected-phrase object))
-           (tkview.modal.command-modal:update-modal
+           (tkview.modal:update-modal
             :message "Sent a phrase to your email address."))
           (t                            ; shouldn't happen
            (error "Internal error.")))))

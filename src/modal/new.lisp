@@ -1,5 +1,5 @@
-(defpackage :tkview.modal.new-modal
-  (:use :cl :tkview.modal.command-modal)
+(defpackage :tkview.modal.new
+  (:use :cl :tkview.modal)
   (:import-from :weblocks/widget
                 :defwidget
                 :render
@@ -9,9 +9,9 @@
   (:export #:new-modal
            #:create-object
            #:make-new-modal))
-(in-package :tkview.modal.new-modal)
+(in-package :tkview.modal.new)
 
-(defwidget new-modal (tkview.modal.edit-modal:edit-modal)
+(defwidget new-modal (tkview.modal.edit:edit-modal)
   ((object-type :initarg :object-type
                 :initform nil
                 :reader object-type))
@@ -31,13 +31,13 @@
 
 (defmethod create-object (object &rest args &key widget &allow-other-keys)
   (let* ((object-type (object-type widget))
-         (args (tkview.modal.edit-modal:sanitize-arguments widget args))
+         (args (tkview.modal.edit:sanitize-arguments widget args))
          (object (apply #'make-instance object-type args)))
     (apply #'tkmito.model:validate object args)
     (mito:save-dao object)
     '("success" :message "Created successfully.")))
   
-(defmethod tkview.modal.edit-modal:make-form-content ((widget new-modal) formatter object)
+(defmethod tkview.modal.edit:make-form-content ((widget new-modal) formatter object)
   (attribute:make-new-widget formatter object))
 
 (defun make-new-modal (&rest args &key object row-formatter description &allow-other-keys)

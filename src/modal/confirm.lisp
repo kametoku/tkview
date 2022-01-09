@@ -1,4 +1,4 @@
-(defpackage :tkview.modal.confirm-modal
+(defpackage :tkview.modal.confirm
   (:use :cl)
   (:import-from :weblocks/widget
                 :defwidget
@@ -9,9 +9,9 @@
   (:export #:confirm-modal
            #:render-confirm-message
            #:make-confirm-modal))
-(in-package :tkview.modal.confirm-modal)
+(in-package :tkview.modal.confirm)
 
-(defwidget confirm-modal (tkview.modal.command-modal:command-modal)
+(defwidget confirm-modal (tkview.modal:modal-widget)
   ((message :initarg :message
             :initform "Are you sure?"
             :accessor message))
@@ -26,7 +26,7 @@
           (funcall message widget)
           message))))
 
-(defmethod tkview.modal.command-modal:render-content ((widget confirm-modal))
+(defmethod tkview.modal:render-content ((widget confirm-modal))
   (with-html
     (:div :class "content"
           (render-confirm-message widget))))

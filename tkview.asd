@@ -29,11 +29,11 @@
                              (:file "not-found")
                              (:file "screen-lock")))
                (:module "modal"
-                :components ((:file "command-modal")
-                             (:file "confirm-modal")
-                             (:file "edit-modal")
-                             (:file "new-modal")
-                             (:file "email-auth-modal")))
+                :components ((:file "modal")
+                             (:file "confirm")
+                             (:file "edit")
+                             (:file "new")
+                             (:file "email-auth")))
                (:module "parts"
                 :components ((:file "command-menu-bar")
                              (:file "table")

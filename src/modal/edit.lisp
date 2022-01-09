@@ -1,5 +1,5 @@
-(defpackage :tkview.modal.edit-modal
-  (:use :cl :tkview.modal.command-modal)
+(defpackage :tkview.modal.edit
+  (:use :cl :tkview.modal)
   (:import-from :weblocks/widget
                 :defwidget
                 :render
@@ -13,9 +13,9 @@
            #:update-object
            #:make-form-content
            #:make-edit-modal))
-(in-package :tkview.modal.edit-modal)
+(in-package :tkview.modal.edit)
 
-(defwidget edit-modal (command-modal)
+(defwidget edit-modal (modal-widget)
   ((row-formatter :initarg :row-formatter
                   :initform #'attribute:attributes
                   :reader row-formatter)
