@@ -1,10 +1,10 @@
 (defpackage :tkview.modal.confirm
   (:use :cl)
-  (:import-from :weblocks/widget
+  (:import-from :reblocks/widget
                 :defwidget
                 :render
                 :update)
-  (:import-from :weblocks/html
+  (:import-from :reblocks/html
                 :with-html)
   (:export #:confirm-modal
            #:render-confirm-message

@@ -1,11 +1,11 @@
 (in-package :cl)
 (defpackage :tkview.parts.property
   (:use :cl :attribute)
-  (:import-from :weblocks/widget
+  (:import-from :reblocks/widget
                 :defwidget
                 :render
                 :update)
-  (:import-from :weblocks/html
+  (:import-from :reblocks/html
                 :with-html)
   (:export :make-property-widget))
 (in-package :tkview.parts.property)
@@ -17,7 +17,7 @@
    (object :initarg :object
            :reader object)))
 
-(defmethod weblocks/widget:render ((widget property-widget))
+(defmethod reblocks/widget:render ((widget property-widget))
   (let ((row-formatter (row-formatter widget))
         (object (object widget)))
     (with-html

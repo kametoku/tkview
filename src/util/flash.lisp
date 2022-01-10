@@ -1,10 +1,10 @@
 (defpackage :tkview.util.flash
   (:use :cl)
-  (:import-from :weblocks/widget
+  (:import-from :reblocks/widget
                 :defwidget
                 :render
                 :update)
-  (:import-from :weblocks/html
+  (:import-from :reblocks/html
                 :with-html)
   (:export :make-flash-widget
            :flash-widget
@@ -19,7 +19,7 @@
 (defun flash (&rest args &key level header message diagnostic uuid escape-p)
   ;; LEVEL: :warning, :info, :success, or :error
   (declare (ignore level header message diagnostic uuid escape-p))
-  (push args (weblocks/session:get-value :flash)))
+  (push args (reblocks/session:get-value :flash)))
 
 (defun render-message (&key (level :info) (header "") (message "") diagnostic uuid escape-p)
   (with-html
@@ -37,14 +37,14 @@
             (:div (:span :class "ui small text" :style "color:gray;"
                          ("UUID: ~A" uuid)))))))
 
-(defmethod weblocks/widget:render ((widget flash-widget))
+(defmethod reblocks/widget:render ((widget flash-widget))
   (prog1
       (with-html
         (:div :class "ui container"
-              (dolist (flash (weblocks/session:get-value :flash))
+              (dolist (flash (reblocks/session:get-value :flash))
                 (apply #'render-message flash))
               (:p)))
-    (weblocks/session:delete-value :flash)))
+    (reblocks/session:delete-value :flash)))
 
 (defun make-flash-widget ()
   (make-instance 'flash-widget))
@@ -56,7 +56,7 @@
     (unless flash-widget (error "No flash widget found."))
     (when args
       (apply #'flash args))
-    (weblocks/widget:update flash-widget)
-;;     (weblocks/response:send-script "window.scrollTo(0, 0);")))
-    (weblocks/response:send-script
+    (reblocks/widget:update flash-widget)
+;;     (reblocks/response:send-script "window.scrollTo(0, 0);")))
+    (reblocks/response:send-script
      '(ps:chain window (scroll-to 0 0)))))

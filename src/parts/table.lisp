@@ -1,11 +1,11 @@
 (in-package :cl)
 (defpackage :tkview.parts.table
   (:use :cl :attribute)
-  (:import-from :weblocks/widget
+  (:import-from :reblocks/widget
                 :defwidget
                 :render
                 :update)
-  (:import-from :weblocks/html
+  (:import-from :reblocks/html
                 :with-html)
   (:export :make-table-widget))
 (in-package :tkview.parts.table)
@@ -52,7 +52,7 @@
 
 (defun request-parameters ()
   "Return the request parameters as plist."
-  (let ((parameters (weblocks/request:get-parameters)))
+  (let ((parameters (reblocks/request:get-parameters)))
     (loop for (key . value) in parameters
 ;;           nconc (list (intern key :keyword) value))))
           nconc (list (tkutil:string-to-keyword key) value))))
@@ -117,7 +117,7 @@ NB: parameter names are case-insensitive."
                 (t
                  (values "sort up icon" :sort-direction :desc)))
         (:button :style "border:none;background-color:transparent;color:#337ab7;font-weight:bold;"
-                 :onclick (weblocks/actions:make-js-action
+                 :onclick (reblocks/actions:make-js-action
                            (lambda (&key &allow-other-keys)
                              (setf (getf (sort-parameters widget) key) value)
                              (update widget)))
@@ -135,7 +135,7 @@ NB: parameter names are case-insensitive."
   (destructuring-bind (&key query date-column start-date end-date &allow-other-keys)
       (search-parameters widget)
     (with-html
-      (weblocks-ui/form:with-html-form
+      (reblocks-ui/form:with-html-form
           (:post (lambda (&rest args)
                    (log:debug args)
                    (let* ((object-type (object-type widget))
@@ -146,7 +146,7 @@ NB: parameter names are case-insensitive."
                      (setf (search-parameters widget) parameters)
                      (setf (getf (sort-parameters widget) :page) 1)
                      (update widget)
-;;                      (weblocks/response:send-script
+;;                      (reblocks/response:send-script
 ;;                       `(setf (ps:@ window location search) ,url-params))
                      ))
            :class "ui form")
@@ -184,7 +184,7 @@ NB: parameter names are case-insensitive."
                              :data-tooltip
                              (format nil "Download is limited to ~A items."
                                      *download-limit*)
-                             :onclick (weblocks/actions:make-js-action
+                             :onclick (reblocks/actions:make-js-action
                                        (lambda (&rest args)
                                          (declare (ignorable args))
                                          (update widget)
@@ -195,7 +195,7 @@ NB: parameter names are case-insensitive."
                                                     (search-parameters widget)
                                                     (sort-parameters widget))))
                                                 (url (format nil "?~A" params)))
-                                           (weblocks/response:redirect url))))
+                                           (reblocks/response:redirect url))))
                              (:i :class "download icon"))))))))
 
 (defun render-pagination-per-page-item (widget per-page &key active)
@@ -203,7 +203,7 @@ NB: parameter names are case-insensitive."
     (if active
         (:a :class "active item" per-page)
         (:a :class "item"
-            :onclick (weblocks/actions:make-js-action
+            :onclick (reblocks/actions:make-js-action
                       (lambda (&key &allow-other-keys)
                         (let ((sort-parameters (sort-parameters widget)))
                           (setf (getf sort-parameters :page) 1)
@@ -229,7 +229,7 @@ NB: parameter names are case-insensitive."
            (:a :class "active item" page))
           (t
            (:a :class "item"
-               :onclick (weblocks/actions:make-js-action
+               :onclick (reblocks/actions:make-js-action
                          (lambda (&key &allow-other-keys)
                            (setf (getf (sort-parameters widget) :page) page)
                            (update widget)))
@@ -266,7 +266,7 @@ NB: parameter names are case-insensitive."
 (defun render-menu-item (widget &key label key value active-p)
   (check-type widget table-widget)
   (check-type key keyword)
-  (let ((onclick (weblocks/actions:make-js-action
+  (let ((onclick (reblocks/actions:make-js-action
                   (lambda (&key &allow-other-keys)
                     (setf (getf (search-parameters widget) key) value)
                     (update widget)))))
@@ -366,13 +366,13 @@ NB: parameter names are case-insensitive."
                           (append search-parameters sort-parameters)))
           (stream (make-string-output-stream)))
       (attribute:write-csv stream row-formatter objects)
-      (weblocks/response:immediate-response
+      (reblocks/response:immediate-response
        (get-output-stream-string stream)
        :content-type "text/csv"
        :headers (list :content-disposition disposition)))))
 
-(defmethod weblocks/widget:render ((widget table-widget))
-  (if (string-equal (weblocks/request:get-parameter "format") "csv")
+(defmethod reblocks/widget:render ((widget table-widget))
+  (if (string-equal (reblocks/request:get-parameter "format") "csv")
       (download-csv widget)
       (render-table widget)))
 

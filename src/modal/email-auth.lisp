@@ -1,11 +1,11 @@
 (defpackage :tkview.modal.email-auth
   (:use :cl :attribute ;; :furano.widgets
         )
-  (:import-from :weblocks/widget
+  (:import-from :reblocks/widget
                 :defwidget
                 :render
                 :update)
-  (:import-from :weblocks/html
+  (:import-from :reblocks/html
                 :with-html)
   (:export :email-auth-modal
            :on-email-filled

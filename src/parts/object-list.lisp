@@ -1,10 +1,10 @@
 (defpackage :tkview.parts.object-list
   (:use :cl)
-  (:import-from :weblocks/widget
+  (:import-from :reblocks/widget
                 :defwidget
                 :render
                 :update)
-  (:import-from :weblocks/html
+  (:import-from :reblocks/html
                 :with-html)
   (:export #:define-object-list-widget))
 (in-package :tkview.parts.object-list)
@@ -13,17 +13,17 @@
                                               menu-bar-formatter)
   "Define an object list page of WIDGET."
   `(progn
-     (weblocks/widget:defwidget ,widget () ())
-     (defmethod weblocks/widget:render ((widget ,widget))
+     (reblocks/widget:defwidget ,widget () ())
+     (defmethod reblocks/widget:render ((widget ,widget))
        (let ((table-widget (tkview.parts.table:make-table-widget
                             :object-type ,object-type :searcher ,searcher))
              (title ,title))
-         (setf (weblocks/page:get-title) title)
+         (setf (reblocks/page:get-title) title)
          (with-html
            (:h2 :class "ui primary header"
                 (when ,icon (:i :class ,(format nil "~A icon" icon)))
                 title)
-           (weblocks/widget:render table-widget)
+           (reblocks/widget:render table-widget)
            ,(when menu-bar-formatter
               `(let ((menu-bar
                        (tkview.parts.command-menu-bar:make-command-menu-bar

@@ -1,10 +1,10 @@
 (defpackage :tkview.parts.command-menu-bar
   (:use :cl)
-  (:import-from :weblocks/widget
+  (:import-from :reblocks/widget
                 :defwidget
                 :render
                 :update)
-  (:import-from :weblocks/html
+  (:import-from :reblocks/html
                 :with-html)
   (:export #:command-menu-bar
            #:menu
@@ -91,7 +91,7 @@ Otherwise, returns nil.")
             (when icon (:i :class (format nil "~A icon" icon)))
             label)))))
 
-(defmethod weblocks/widget:render ((widget command-menu-bar))
+(defmethod reblocks/widget:render ((widget command-menu-bar))
   (let ((menu-bar-formatter (menu-bar-formatter widget)))
     (with-html
       (:div :class "ui compact menu"

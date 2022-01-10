@@ -1,10 +1,10 @@
 (defpackage :tkview.util.screen-lock
   (:use :cl)
-  (:import-from :weblocks/widget
+  (:import-from :reblocks/widget
                 :defwidget
                 :render
                 :update)
-  (:import-from :weblocks/html
+  (:import-from :reblocks/html
                 :with-html)
   (:export :make-screen-lock-widget))
 (in-package :tkview.util.screen-lock)
@@ -14,7 +14,7 @@
 
 (defvar *screen-lock-dependencies*
   (list
-   (weblocks-parenscript:make-dependency
+   (reblocks-parenscript:make-dependency
      (defun screen-unlock ()
        (let ((screen-lock (ps:chain document (get-element-by-id "screenLock"))))
          (ps:chain screen-lock parent-node (remove-child screen-lock))))
@@ -66,11 +66,11 @@
 ;;     screenLock.parentNode.removeChild(screenLock);
 ;; }
 
-(defmethod weblocks/dependencies:get-dependencies ((widget screen-lock-widget))
+(defmethod reblocks/dependencies:get-dependencies ((widget screen-lock-widget))
   (append *screen-lock-dependencies*
           (call-next-method)))
 
-(defmethod weblocks/widget:render ((widget screen-lock-widget))
+(defmethod reblocks/widget:render ((widget screen-lock-widget))
   ;; nothing to do
   )
 

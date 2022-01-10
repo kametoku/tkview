@@ -7,10 +7,10 @@
                "cl-ppcre"
                "cl-reexport"
                "quri"
-               "weblocks"
-               "weblocks-lass"
-               "weblocks-parenscript"
-               "weblocks-ui"
+               "reblocks"
+               "reblocks-lass"
+               "reblocks-parenscript"
+               "reblocks-ui"
 
                ;; not available from Ultralisp site
                "attribute"   ; https://github.com/kametoku/attribute
@@ -41,7 +41,7 @@
                              (:file "property")))
                (:file "tkview")
                (:file "object-url"))
-  :description "Common Lisp Web Views with Weblocks."
+  :description "Common Lisp Web Views with Reblocks."
   :in-order-to ((test-op (test-op "tkview/test"))))
 
 (defsystem "tkview/tests"

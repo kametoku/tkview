@@ -1,10 +1,10 @@
 (defpackage :tkview.modal
   (:use :cl)
-  (:import-from :weblocks/widget
+  (:import-from :reblocks/widget
                 :defwidget
                 :render
                 :update)
-  (:import-from :weblocks/html
+  (:import-from :reblocks/html
                 :with-html)
   (:export #:modal-widget
            #:object
@@ -37,7 +37,7 @@
   ;; Make sure that the mdandatory slots are given.
   (with-slots (object parent) widget
 ;;     (assert object)
-    (check-type parent weblocks/widget:widget))
+    (check-type parent reblocks/widget:widget))
   (with-slots (on-approve href approve-label) widget
     (assert (or (not approve-label) on-approve href)))
   (when (rendered-p widget)
@@ -74,7 +74,7 @@
   (let ((gfunction (gensym)))
     `(let ((,gfunction ,function))
        (when ,gfunction
-         (weblocks/actions:make-js-action
+         (reblocks/actions:make-js-action
           (lambda (&rest args)
             (apply ,gfunction (object ,widget) :widget widget args)))))))
 
@@ -103,15 +103,15 @@ ARGS ::= :message message"
   (handler-case
       (unwind-protect
            (let ((result (apply function (object widget) :widget widget args)))
-             (weblocks/response:send-script
+             (reblocks/response:send-script
               (fui.modules:js-method widget 'modal "hide")) ; Hide the modal.
              (apply #'feedback-message result)
              (update (parent widget)))
-        (weblocks/response:send-script '(screen-unlock)))
+        (reblocks/response:send-script '(screen-unlock)))
     (update-modal (condition)
       (let ((message (message condition)))
         (update widget)
-        (weblocks/response:send-script
+        (reblocks/response:send-script
          (fui.modules:js-show-modal widget))
         (when message
           (feedback-message (or (level condition) "info") :message message))))
@@ -121,14 +121,14 @@ ARGS ::= :message message"
         (feedback-message "error" :message message)))))
 
 (defmacro js-event-handler (widget function &optional (js-code '((event))))
-  "Create a Weblocks action and return JavaScript code.
+  "Create a Reblocks action and return JavaScript code.
 FUNCTION is executed on server side with web page screen locked.
 FUNCTION should return the result that will be passed to `feedback-message'
 to show the result in flash or toast."
   (let ((gfunction (gensym)))
     `(let ((,gfunction ,function))
        (when ,gfunction
-         (weblocks-parenscript:make-js-handler
+         (reblocks-parenscript:make-js-handler
           :lisp-code ((&rest args)
                       (apply #'do-action ,widget ,gfunction args))
           :js-code (,(car js-code)
@@ -172,7 +172,7 @@ to show the result in flash or toast."
     (with-html
       (render-title widget)
       (:div :class "content"
-            (weblocks-ui/form:with-html-form
+            (reblocks-ui/form:with-html-form
                 (:POST (lambda (&rest args)
                          (apply #'do-action widget (on-approve widget) args))
                  :class "ui form"
@@ -191,22 +191,22 @@ to show the result in flash or toast."
                      (when approve-icon
                        (:i :class (format nil "~A icon" approve-icon))))))))
 
-(defmethod weblocks/widget:render ((widget modal-widget))
+(defmethod reblocks/widget:render ((widget modal-widget))
   (if (use-form-p widget)
       (render-form widget)
       (render-modal widget)))
 
 (defmethod show-modal ((widget modal-widget))
-  "Returns weblocks action that shows the modal."
-  (weblocks/actions:make-js-action
+  "Returns reblocks action that shows the modal."
+  (reblocks/actions:make-js-action
    (lambda (&rest args)
      (when (on-show widget)
        (apply (on-show widget) (object widget) :widget widget args))
      (cond ((rendered-p widget) (update widget))
-           (t (update widget :inserted-after (weblocks/widgets/root:get))
+           (t (update widget :inserted-after (reblocks/widgets/root:get))
               (setf (rendered-p widget) t)))
      (tkview.util.flash:flash-now)
-     (weblocks/response:send-script
+     (reblocks/response:send-script
       (fui.modules:js-show-modal widget)))))
 
 ;; (defun make-command-modal (&rest args &key object parent on-show on-approve

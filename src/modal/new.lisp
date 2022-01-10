@@ -1,10 +1,10 @@
 (defpackage :tkview.modal.new
   (:use :cl :tkview.modal)
-  (:import-from :weblocks/widget
+  (:import-from :reblocks/widget
                 :defwidget
                 :render
                 :update)
-  (:import-from :weblocks/html
+  (:import-from :reblocks/html
                 :with-html)
   (:export #:new-modal
            #:create-object
