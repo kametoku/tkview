@@ -26,5 +26,9 @@
            #:prompt-for-email
            #:prompt-for-phrase
            #:make-email-auth-modal
+
+           ;; conditions
+           #:phrase-expired
+           #:phrase-not-matched
            ))
 

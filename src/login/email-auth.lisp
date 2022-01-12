@@ -22,13 +22,25 @@
   (declare (ignore args))
   (update-expected-phrase email-auth))
 
+(define-condition phrase-expired (error)
+  ((phrase :initarg :phrase :initform nil :reader phrase))
+  (:report (lambda (condition stream)
+             (declare (ignore condition))
+             (format stream "Phrase expired.  Please retry with new phrase."))))
+
+(define-condition phrase-not-matched (error)
+  ((phrase :initarg :phrase :initform nil :reader phrase))
+  (:report (lambda (condition stream)
+             (declare (ignore condition))
+             (format stream "Phrase not matched."))))
+
 (defun check-phrase (email-auth &key (phrase (phrase email-auth)))
   (check-type email-auth email-auth)
   (when (local-time:timestamp> (local-time:now) (expiration email-auth))
-    (error "Phrase expired.  Please retry with new phrase."))
+    (error 'phrase-expired :phrase phrase))
   (unless (string= phrase (expected-phrase email-auth))
     (sleep 2)
-    (error "Phrase not matched.")))
+    (error 'phrase-not-matched :phrase phrase)))
 
 (defun email-auth-attributes (object)
   (when (eql object 'email-auth) (setf object nil))
