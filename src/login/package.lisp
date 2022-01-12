@@ -18,5 +18,13 @@
            #:make-login-page
            #:make-reset-password-modal
            #:make-password-modal
+
+           #:email-auth-modal
+           #:send-phrase-by-email
+           #:on-email-filled
+           #:on-phrase-matched
+           #:prompt-for-email
+           #:prompt-for-phrase
+           #:make-email-auth-modal
            ))
 

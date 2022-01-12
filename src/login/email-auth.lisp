@@ -1,20 +1,4 @@
-(defpackage :tkview.modal.email-auth
-  (:use :cl :attribute ;; :furano.widgets
-        )
-  (:import-from :reblocks/widget
-                :defwidget
-                :render
-                :update)
-  (:import-from :reblocks/html
-                :with-html)
-  (:export :email-auth-modal
-           :send-phrase-by-email
-           :on-email-filled
-           :on-phrase-matched
-           :prompt-for-email
-           :prompt-for-phrase
-           :make-email-auth-modal))
-(in-package :tkview.modal.email-auth)
+(in-package :tkview.login)
 
 (defparameter *expiration-minutes* 10)
 

@@ -29,11 +29,11 @@
                 :components ((:file "modal")
                              (:file "confirm")
                              (:file "edit")
-                             (:file "new")
-                             (:file "email-auth")))
+                             (:file "new")))
                (:module "login"
                 :components ((:file "package")
                              (:file "password-modal")
+                             (:file "email-auth")
                              (:file "reset-password-modal")
                              (:file "login")
                              (:file "login-session")))
