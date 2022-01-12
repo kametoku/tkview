@@ -40,20 +40,6 @@ The return value is user object that is identified by `find-user'.
 Otherwise, if not logged in or the current login account became invalid,
 the function returns nil. In the case of invalid login account, the error
 message is displayed in the page by `tkview.util.flash:flash'."
-;;   (check-type widget login-session)
-;;   (handler-case
-;;       (let* ((email (session-user widget))
-;;              (user (and email (tkutil.auth:find-user :email email))))
-;;         (when user
-;;           (tkutil.auth:check-user-availability user))
-;;         user)
-;;     (error (condition)
-;;       (setf (session-user widget) nil)
-;;       (tkview.util.flash:flash
-;;        :level :error
-;;        :header (format nil "User account ~A is not available." email)
-;;        :message (format nil "~A" condition))
-;;       nil)))
   (check-type widget login-session)
   (handler-case
       (let ((email (session-user widget)))
