@@ -16,23 +16,23 @@
 (defwidget flash-widget ()
   ())
 
-(defun flash (&rest args &key level header message diagnostic uuid escape-p)
+(defun flash (&rest args &key level header message diagnostic uuid raw-p)
   ;; LEVEL: :warning, :info, :success, or :error
-  (declare (ignore level header message diagnostic uuid escape-p))
+  (declare (ignore level header message diagnostic uuid raw-p))
   (push args (reblocks/session:get-value :flash)))
 
-(defun render-message (&key (level :info) (header "") (message "") diagnostic uuid escape-p)
+(defun render-message (&key (level :info) (header "") (message "") diagnostic uuid raw-p)
   (with-html
     (:div :class (format nil "ui ~:[~;~:*~(~A ~)~]message" level)
-          (if escape-p
-              (progn
-                (:div :class "header" header)
-                (:p message
-                    (when diagnostic (:br) diagnostic)))
+          (if raw-p
               (progn
                 (:div :class "header" (:raw header))
                 (:p (:raw message)
-                    (when diagnostic (:br) (:raw diagnostic)))))
+                    (when diagnostic (:br) (:raw diagnostic))))
+              (progn
+                (:div :class "header" header)
+                (:p message
+                    (when diagnostic (:br) diagnostic))))
           (when uuid
             (:div (:span :class "ui small text" :style "color:gray;"
                          ("UUID: ~A" uuid)))))))
@@ -51,7 +51,7 @@
 
  
 (defun flash-now (&rest args)
-  "ARGS ::= [ &key level header message diagnostic uuid escape-p ]"
+  "ARGS ::= [ &key level header message diagnostic uuid raw-p ]"
   (let ((flash-widget (tkview.util.root:find-child 'tkview.util.flash:flash-widget)))
     (unless flash-widget (error "No flash widget found."))
     (when args

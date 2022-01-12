@@ -116,9 +116,10 @@ ARGS ::= :message message"
         (when message
           (feedback-message (or (level condition) "info") :message message))))
     (error (condition)
-      (let ((message (tkutil.exception:error-message condition)))
+      (multiple-value-bind (message raw-p)
+          (tkutil.exception:error-message condition)
         (log:error condition message)
-        (feedback-message "error" :message message)))))
+        (feedback-message "error" :message message :raw-p raw-p)))))
 
 (defmacro js-event-handler (widget function &optional (js-code '((event))))
   "Create a Reblocks action and return JavaScript code.
