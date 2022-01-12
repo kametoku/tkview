@@ -117,7 +117,7 @@ ARGS ::= :message message"
           (feedback-message (or (level condition) "info") :message message))))
     (error (condition)
       (let ((message (format nil "Error: ~A"
-                             (tkview.exception:error-message condition))))
+                             (tkutil.exception:error-message condition))))
         (feedback-message "error" :message message)))))
 
 (defmacro js-event-handler (widget function &optional (js-code '((event))))

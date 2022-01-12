@@ -8,6 +8,7 @@
   (:import-from :reblocks/html
                 :with-html)
   (:export :email-auth-modal
+           :send-phrase-by-email
            :on-email-filled
            :on-phrase-matched
            :prompt-for-email
@@ -18,7 +19,7 @@
 (defparameter *expiration-minutes* 10)
 
 (defclass email-auth ()
-  ((email :initarg email :initform nil :accessor email)
+  ((email :initarg :email :initform nil :accessor email)
    (phrase :initform nil :accessor phrase)
    (expected-phrase :accessor expected-phrase)
    (expiration :accessor expiration)))
@@ -66,11 +67,17 @@
                      :on-approve #'on-approve
                      :on-show #'on-show))
 
+(defmethod send-phrase-by-email (user &key email phrase)
+  (log:debug user email phrase)
+  (error "Please implement `send-phrase-by-email' for user ~A." user))
+
 (defmethod on-email-filled ((widget email-auth-modal) &key email)
-  nil)
+  (log:debug widget email)
+  (error "Please implement `on-email-filled' for user ~A." widget))
 
 (defmethod on-phrase-matched ((widget email-auth-modal) &key email)
-  nil)
+  (log:debug widget email)
+  (error "Please implement `on-email-filled' for user ~A." widget))
 
 (defmethod prompt-for-email ((widget email-auth-modal))
   "Please enter your email address.")

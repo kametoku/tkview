@@ -19,10 +19,7 @@
                "tkutil"      ; https://github.com/kametoku/tkutil
                )
   :pathname "src"
-  :components ((:module "exception"
-                :pathname ""
-                :components ((:file "exception")))
-               (:module "util"
+  :components ((:module "util"
                 :components ((:file "root")
                              (:file "flash")
                              (:file "maintenance")
@@ -34,6 +31,12 @@
                              (:file "edit")
                              (:file "new")
                              (:file "email-auth")))
+               (:module "login"
+                :components ((:file "package")
+                             (:file "password-modal")
+                             (:file "reset-password-modal")
+                             (:file "login")
+                             (:file "login-session")))
                (:module "parts"
                 :components ((:file "command-menu-bar")
                              (:file "table")
