@@ -15,11 +15,11 @@
 (defgeneric command-menu-bar (object))
 
 (defun menu (&rest args &key label icon command onclick href target modal confirm
-                          row-formatter
+                          formatter
                           on-show on-approve rendered-p
                           enabled hide extra-class object)
   (declare (ignorable label icon command onclick href target modal confirm
-                      row-formatter
+                      formatter
                       on-show on-approve rendered-p
                       enabled hide extra-class object))
   (apply #'list args))
@@ -42,7 +42,7 @@ Otherwise, returns nil.")
 (defun render-command-menu (widget &rest menu-formatter
 ;;                             &key label icon command onclick href target modal
                             &key label icon command onclick href target modal
-                              (row-formatter #'attribute:attributes)
+                              (formatter #'attribute:attributes)
                               on-show on-approve rendered-p
                               confirm (enabled #'executable-p)
                               hide extra-class (object (object widget)))
@@ -66,7 +66,7 @@ Otherwise, returns nil.")
            (confirm (tkutil:ensure-value confirm object))
            (make-modal-args (list :object object :parent (parent widget)
                                   :object-type object-type
-                                  :row-formatter row-formatter
+                                  :formatter formatter
                                   :on-show on-show :on-approve on-approve
                                   :href href :target target :rendered-p rendered-p))
            (make-modal-args (loop for (key value) on make-modal-args by #'cddr

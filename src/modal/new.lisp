@@ -40,6 +40,6 @@
 (defmethod tkview.modal.edit:make-form-content ((widget new-modal) formatter object)
   (attribute:make-new-widget formatter object))
 
-(defun make-new-modal (&rest args &key object row-formatter description &allow-other-keys)
-  (declare (ignore object row-formatter description))
+(defun make-new-modal (&rest args &key object formatter description &allow-other-keys)
+  (declare (ignore object formatter description))
   (apply #'make-instance 'new-modal args))

@@ -57,7 +57,7 @@
 (defwidget email-auth-modal (tkview.modal.edit:edit-modal)
   ()
   (:default-initargs :object (make-instance 'email-auth)
-                     :row-formatter #'email-auth-attributes
+                     :formatter #'email-auth-attributes
                      :approve-label "Next"
                      :approve-icon "arrow alternate circle right"
                      :on-approve #'on-approve

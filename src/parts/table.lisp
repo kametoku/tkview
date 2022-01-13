@@ -7,15 +7,16 @@
                 :update)
   (:import-from :reblocks/html
                 :with-html)
+  (:shadow #:formatter)
   (:export :make-table-widget))
 (in-package :tkview.parts.table)
 
 (defparameter *download-limit* 2000)
 
 (defwidget table-widget ()
-  ((row-formatter :initarg :row-formatter
-                  :initform #'attributes
-                  :reader row-formatter)
+  ((formatter :initarg :formatter
+              :initform #'attributes
+              :reader formatter)
    (columns :reader columns) ; columns ::= ((name colname date-column-p)*)
    (date-columns :reader date-columns)  ; date-columns ::= colname*
    (sort-columns :reader sort-columns)  ; sort-columns ::= colname*
@@ -38,9 +39,9 @@
 
 (defmethod initialize-instance :after ((widget table-widget) &rest args)
   (declare (ignore args))
-  (let* ((row-formatter (row-formatter widget))
+  (let* ((formatter (formatter widget))
          (object-type (object-type widget))
-         (columns (build-columns row-formatter object-type))
+         (columns (build-columns formatter object-type))
          (date-columns (loop for (name colname date-column-p) in columns
                              when date-column-p
                                collect colname))
@@ -318,7 +319,7 @@ NB: parameter names are case-insensitive."
 
 (defun render-table (widget)
   (check-type widget table-widget)
-  (let* ((row-formatter (row-formatter widget))
+  (let* ((formatter (formatter widget))
          (columns (columns widget))
          (no-filter-p (no-filter-p widget)))
     (multiple-value-bind (objects total)
@@ -347,12 +348,12 @@ NB: parameter names are case-insensitive."
 ;;                            (:td (:input :type "checkbox" :name "ids[]"
 ;;                                         :value (mito:object-id object)
 ;;                                         :form "action_form"))
-                       do (object-list-page-attributes row-formatter object))))
+                       do (object-list-page-attributes formatter object))))
         (render-pagination widget total)))))
 
 (defun download-csv (widget)
   (check-type widget table-widget)
-  (let* ((row-formatter (row-formatter widget))
+  (let* ((formatter (formatter widget))
          (object-type (object-type widget))
          (search-parameters (search-parameters widget))
          (sort-parameters (sort-parameters widget))
@@ -365,7 +366,7 @@ NB: parameter names are case-insensitive."
     (let ((objects (apply searcher :limit *download-limit*
                           (append search-parameters sort-parameters)))
           (stream (make-string-output-stream)))
-      (attribute:write-csv stream row-formatter objects)
+      (attribute:write-csv stream formatter objects)
       (reblocks/response:immediate-response
        (get-output-stream-string stream)
        :content-type "text/csv"
@@ -376,9 +377,9 @@ NB: parameter names are case-insensitive."
       (download-csv widget)
       (render-table widget)))
 
-(defun make-table-widget (&rest args &key object-type row-formatter
+(defun make-table-widget (&rest args &key object-type formatter
                                        searcher search-args no-filter-p)
-  (declare (ignorable object-type row-formatter searcher search-args no-filter-p))
+  (declare (ignorable object-type formatter searcher search-args no-filter-p))
   (let ((widget (apply #'make-instance 'table-widget args)))
     (setf (search-parameters widget) (request-search-parameters widget))
     (setf (sort-parameters widget) (request-sort-parameters widget))

@@ -9,7 +9,7 @@
 
 (defwidget password-modal (tkview.modal.edit:edit-modal)
   ()
-  (:default-initargs :row-formatter #'user-password-attributes
+  (:default-initargs :formatter #'user-password-attributes
                      :description "Please enter new password and click [OK] button."
                      :title-icon "unlock"
                      :title "Change Password"))

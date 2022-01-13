@@ -6,6 +6,7 @@
                 :update)
   (:import-from :reblocks/html
                 :with-html)
+  (:shadow #:formatter)
   (:export #:edit-modal
            #:description
            #:edit-modal-title
@@ -16,9 +17,9 @@
 (in-package :tkview.modal.edit)
 
 (defwidget edit-modal (modal-widget)
-  ((row-formatter :initarg :row-formatter
-                  :initform #'attribute:attributes
-                  :reader row-formatter)
+  ((formatter :initarg :formatter
+              :initform #'attribute:attributes
+              :reader formatter)
    (description :initarg :description
                 :initform nil
                 :reader description)
@@ -64,7 +65,7 @@
   (attribute:make-edit-widget formatter object))
 
 (defmethod render-form-content ((widget edit-modal))
-  (let* ((formatter (row-formatter widget))
+  (let* ((formatter (formatter widget))
          (object (object widget))
          (form-content (make-form-content widget formatter object)))
     (render form-content)
@@ -78,6 +79,6 @@
                   (:div :class "column" (description widget))))
           (call-next-method))))
   
-(defun make-edit-modal (&rest args &key object row-formatter description &allow-other-keys)
-  (declare (ignore object row-formatter description))
+(defun make-edit-modal (&rest args &key object formatter description &allow-other-keys)
+  (declare (ignore object formatter description))
   (apply #'make-instance 'edit-modal args))
