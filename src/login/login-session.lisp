@@ -83,8 +83,12 @@ message is displayed in the page by `tkview.util.flash:flash'."
 (defun login-session-page-p (widget &key (path (reblocks/request:get-path)))
   "Return non-nil if PATH is a page under the login session of WIDGET."
   (check-type widget login-session)
-  (let ((path-re (format nil "^~A(|/.*)$" (top-path widget))))
-    (ppcre:scan path-re path)))
+  (let ((top-path (top-path widget)))
+    (cond ((null top-path))
+          ((string= top-path ""))
+          ((string= top-path "/"))
+          (t (let ((path-re (format nil "^~A(|/.*)$" top-path)))
+               (ppcre:scan path-re path))))))
 
 (defun make-login-session-widget (child-widget &rest args
                                   &key login-path logout-path top-path
