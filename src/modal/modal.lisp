@@ -40,6 +40,8 @@
     (check-type parent reblocks/widget:widget))
   (with-slots (on-approve href approve-label) widget
     (assert (or (not approve-label) on-approve href)))
+  (with-slots (approve-label use-form-p) widget
+    (assert (or (not use-form-p) approve-label)))
   (when (rendered-p widget)
     ;; render modal widget anyway. (no pnopone)
     (render widget)))
