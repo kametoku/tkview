@@ -34,6 +34,8 @@
 
 (defmethod initialize-instance :after ((widget modal-widget) &rest args)
   (declare (ignore args))
+  (unless (object widget)
+    (setf (slot-value widget 'object) widget))
   ;; Make sure that the mdandatory slots are given.
   (with-slots (object parent) widget
 ;;     (assert object)
