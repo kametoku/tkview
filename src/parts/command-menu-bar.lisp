@@ -17,11 +17,11 @@
 (defun menu (&rest args &key label icon command onclick href target modal confirm
                           formatter
                           on-show on-approve rendered-p
-                          enabled hide extra-class object)
+                          enabled hide extra-class object object-type)
   (declare (ignorable label icon command onclick href target modal confirm
                       formatter
                       on-show on-approve rendered-p
-                      enabled hide extra-class object))
+                      enabled hide extra-class object object-type))
   (apply #'list args))
 
 (defgeneric executable-p (object command)
@@ -40,20 +40,16 @@ Otherwise, returns nil.")
            :reader parent)))
 
 (defun render-command-menu (widget &rest menu-formatter
-;;                             &key label icon command onclick href target modal
                             &key label icon command onclick href target modal
                               (formatter #'attribute:attributes)
                               on-show on-approve rendered-p
                               confirm (enabled #'executable-p)
-                              hide extra-class (object (object widget)))
+                              hide extra-class (object (object widget))
+                              object-type)
   (declare (ignorable menu-formatter))
   (check-type widget command-menu-bar)
   (let* ((object (tkutil:ensure-value object))
-         (hide (tkutil:ensure-value hide object))
-         object-type)
-    (when (symbolp object)
-      (setf object-type object)
-      (setf object nil))
+         (hide (tkutil:ensure-value hide object)))
     (when hide (return-from render-command-menu))
     (let* ((command (tkutil:ensure-value command object))
            (label (tkutil:ensure-value label object))

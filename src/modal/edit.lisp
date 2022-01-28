@@ -8,6 +8,7 @@
                 :with-html)
   (:shadow #:formatter)
   (:export #:edit-modal
+           #:formatter
            #:description
            #:edit-modal-title
            #:sanitize-arguments
@@ -61,13 +62,13 @@
   (apply #'tkmito.model:update object (sanitize-arguments widget args))
   '("success" :message "Updated successfully."))
 
-(defmethod make-form-content ((widget edit-modal) formatter object)
-  (attribute:make-edit-widget formatter object))
+(defgeneric make-form-content (widget))
+
+(defmethod make-form-content ((widget edit-modal))
+  (attribute:make-edit-widget (formatter widget) (object widget)))
 
 (defmethod render-form-content ((widget edit-modal))
-  (let* ((formatter (formatter widget))
-         (object (object widget))
-         (form-content (make-form-content widget formatter object)))
+  (let ((form-content (make-form-content widget)))
     (render form-content)
     (setf (form-content widget) form-content)))
 

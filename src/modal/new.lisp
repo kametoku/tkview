@@ -37,8 +37,9 @@
     (mito:save-dao object)
     '("success" :message "Created successfully.")))
   
-(defmethod tkview.modal.edit:make-form-content ((widget new-modal) formatter object)
-  (attribute:make-new-widget formatter object))
+(defmethod tkview.modal.edit:make-form-content ((widget new-modal))
+  (attribute:make-new-widget (tkview.modal.edit:formatter widget)
+                             (object-type widget)))
 
 (defun make-new-modal (&rest args &key object formatter description &allow-other-keys)
   (declare (ignore object formatter description))
