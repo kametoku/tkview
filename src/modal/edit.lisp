@@ -29,8 +29,7 @@
   (:default-initargs :title-icon "edit"
                      :use-form-p t
                      :approve-label "OK"
-                     :deny-label "Cancel"
-                     :on-approve #'update-object))
+                     :deny-label "Cancel"))
 
 (defgeneric edit-modal-title (object)
   (:documentation "Returns the title string of edit modal for OBJECT.")
@@ -50,16 +49,23 @@
                                         &allow-other-keys)
   (apply #'call-next-method widget :title title args))
 
-(defmethod sanitize-arguments ((widget edit-modal) args)
-  "Converts some parameters to database representation."
-  (remf args :widget)
-  (dolist (widget (attribute:input-widgets (form-content widget)))
-    (setf (getf args (tkutil:string-to-keyword (fui.modules:name widget)))
-          (fui.modules:value widget)))
-  args)
+(defgeneric sanitize-arguments (widget args)
+  (:documentation "Converts some parameters to database representation.")
+  (:method ((widget edit-modal) args)
+    (dolist (widget (attribute:input-widgets (form-content widget)))
+      (setf (getf args (tkutil:string-to-keyword (fui.modules:name widget)))
+            (fui.modules:value widget)))
+    args))
 
-(defmethod update-object (object &rest args &key widget &allow-other-keys)
-  (apply #'tkmito.model:update object (sanitize-arguments widget args))
+(defgeneric update-object (widget object &rest args)
+  (:documentation "Update slots of OBJECT per ARGS.")
+  (:method (widget object &rest args)
+    (apply #'tkmito.model:update object args)))
+
+(defmethod tkview.modal:on-approve ((widget edit-modal) object &rest args)
+  (unless object
+    (error "No object to update."))
+  (apply #'update-object widget object (sanitize-arguments widget args))
   '("success" :message "Updated successfully."))
 
 (defgeneric make-form-content (widget))

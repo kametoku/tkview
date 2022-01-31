@@ -59,9 +59,7 @@
   (:default-initargs :object (make-instance 'email-auth)
                      :formatter #'email-auth-attributes
                      :approve-label "Next"
-                     :approve-icon "arrow alternate circle right"
-                     :on-approve #'on-approve
-                     :on-show #'on-show))
+                     :approve-icon "arrow alternate circle right"))
 
 (defmethod send-phrase-by-email (user &key email phrase)
   (log:debug user email phrase)
@@ -88,10 +86,9 @@
         (prompt-for-phrase widget)
         (prompt-for-email widget))))
 
-(defun on-approve (object &rest args &key widget &allow-other-keys)
-  (check-type object email-auth)
-  (check-type widget email-auth-modal)
-  (apply #'tkview.modal.edit:update-object object args)
+(defmethod tkview.modal:on-approve ((widget email-auth-modal) (object email-auth)
+                                    &key &allow-other-keys)
+  (call-next-method)
   (let ((phrase (phrase object))
         (email (email object)))
     (cond (phrase
@@ -105,9 +102,8 @@
           (t                            ; shouldn't happen
            (error "Internal error.")))))
 
-(defun on-show (object &key widget &allow-other-keys)
-  (check-type object email-auth)
-  (check-type widget email-auth-modal)
+(defmethod tkview.modal:on-show ((widget email-auth-modal) object
+                                 &key &allow-other-keys)
   (setf (email object) nil
         (phrase object) nil)
   (update-expected-phrase object))

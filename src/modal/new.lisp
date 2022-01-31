@@ -17,8 +17,7 @@
                 :reader object-type))
   (:default-initargs :title-icon "plus circle"
                      :approve-label "Create"
-                     :deny-label "Cancel"
-                     :on-approve #'create-object))
+                     :deny-label "Cancel"))
 
 (defun new-modal-title (object-type)
   (format nil "Create ~:(~A~)" object-type))
@@ -29,18 +28,24 @@
                                         &allow-other-keys)
   (apply #'call-next-method widget :title title args))
 
-(defmethod create-object (object &rest args &key widget &allow-other-keys)
-  (let* ((object-type (object-type widget))
-         (args (tkview.modal.edit:sanitize-arguments widget args))
-         (object (apply #'make-instance object-type args)))
-    (apply #'tkmito.model:validate object args)
-    (mito:save-dao object)
-    '("success" :message "Created successfully.")))
+(defgeneric create-object (widget object-type &rest args)
+  (:method (widget object-type &rest args)
+    (let ((object (apply #'make-instance object-type args)))
+      (apply #'tkmito.model:validate object args)
+      (mito:save-dao object))))
+
+(defmethod tkview.modal:on-approve ((widget new-modal) object &rest args)
+  (apply #'create-object widget (object-type widget)
+         (tkview.modal.edit:sanitize-arguments widget args))
+  '("success" :message "Created successfully."))
   
 (defmethod tkview.modal.edit:make-form-content ((widget new-modal))
   (attribute:make-new-widget (tkview.modal.edit:formatter widget)
                              (object-type widget)))
 
-(defun make-new-modal (&rest args &key object formatter description &allow-other-keys)
-  (declare (ignore object formatter description))
+(defun make-new-modal (&rest args &key object object-type formatter description
+                       &allow-other-keys)
+  (declare (ignore object-type formatter description))
+  (when object
+    (error "OBJECT parameter cannot be non-nil for the new modal."))
   (apply #'make-instance 'new-modal args))

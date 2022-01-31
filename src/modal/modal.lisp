@@ -9,6 +9,8 @@
   (:export #:modal-widget
            #:object
            #:parent
+           #:on-show
+           #:on-approve
            #:render-title
            #:render-content
            #:render-action
@@ -20,8 +22,8 @@
 (defwidget modal-widget (fui.modules:modal-widget)
   ((object :initarg :object :initform nil :reader object)
    (parent :initarg :parent :initform nil :reader parent)
-   (on-show :initarg :on-show :initform nil :reader on-show)
-   (on-approve :initarg :on-approve :initform nil :reader on-approve)
+   (on-show :initarg :on-show :initform #'on-show :reader %on-show)
+   (on-approve :initarg :on-approve :initform #'on-approve :reader %on-approve)
    (href :initarg :href :initform nil :reader href)
    (target :initarg :target :initform nil :reader target)
    (title :initarg :title :initform "" :reader title)
@@ -74,6 +76,15 @@
                     (:br)
                     "Please implement render-content method for your own widget.")))))
 
+(defgeneric on-show (modal object &rest args)
+  (:method ((modal modal-widget) object &rest args)
+    (declare (ignore args))))
+
+(defgeneric on-approve (modal object &rest args)
+  (:documentation "Action on approve.")
+  (:method ((modal modal-widget) object &rest args)
+    (declare (ignore args))))
+
 (defmacro js-event-action (widget function)
   (let ((gfunction (gensym)))
     `(let ((,gfunction ,function))
@@ -103,10 +114,10 @@ ARGS ::= :message message"
         (result
          (error "Bad argument."))))
 
-(defun do-action (widget function &rest args)
+(defun do-action (widget action &rest args)
   (handler-case
       (unwind-protect
-           (let ((result (apply function (object widget) :widget widget args)))
+           (let ((result (apply action widget (object widget) args)))
              (reblocks/response:send-script
               (fui.modules:js-method widget 'modal "hide")) ; Hide the modal.
              (apply #'feedback-message result)
@@ -125,23 +136,23 @@ ARGS ::= :message message"
         (log:error condition message)
         (feedback-message "error" :message message :raw-p raw-p)))))
 
-(defmacro js-event-handler (widget function &optional (js-code '((event))))
+(defmacro js-event-handler (widget action &optional (js-code '((event))))
   "Create a Reblocks action and return JavaScript code.
-FUNCTION is executed on server side with web page screen locked.
-FUNCTION should return the result that will be passed to `feedback-message'
+ACTION is executed on server side with web page screen locked.
+ACTION should return the result that will be passed to `feedback-message'
 to show the result in flash or toast."
-  (let ((gfunction (gensym)))
-    `(let ((,gfunction ,function))
-       (when ,gfunction
+  (let ((gaction (gensym)))
+    `(let ((,gaction ,action))
+       (when ,gaction
          (reblocks-parenscript:make-js-handler
           :lisp-code ((&rest args)
-                      (apply #'do-action ,widget ,gfunction args))
+                      (apply #'do-action ,widget ,gaction args))
           :js-code (,(car js-code)
                     (screen-lock)
                     ,@(cdr js-code)))))))
 
 (defmethod render-action ((widget modal-widget))
-  (let ((on-approve (js-event-handler widget (on-approve widget)))
+  (let ((on-approve (js-event-handler widget (%on-approve widget)))
         (deny-label (deny-label widget))
         (approve-label (approve-label widget))
         (approve-icon (approve-icon widget)))
@@ -179,7 +190,7 @@ to show the result in flash or toast."
       (:div :class "content"
             (reblocks-ui/form:with-html-form
                 (:POST (lambda (&rest args)
-                         (apply #'do-action widget (on-approve widget) args))
+                         (apply #'do-action widget (%on-approve widget) args))
                  :class "ui form"
                  :extra-submit-code (ps:ps (screen-lock))
                  :id form-id)
@@ -205,8 +216,8 @@ to show the result in flash or toast."
   "Returns reblocks action that shows the modal."
   (reblocks/actions:make-js-action
    (lambda (&rest args)
-     (when (on-show widget)
-       (apply (on-show widget) (object widget) :widget widget args))
+     (when (%on-show widget)
+       (apply (%on-show widget) widget (object widget) args))
      (cond ((rendered-p widget) (update widget))
            (t (update widget :inserted-after (reblocks/widgets/root:get))
               (setf (rendered-p widget) t)))
