@@ -28,7 +28,6 @@
               `(let ((menu-bar
                        (tkview.parts.command-menu-bar:make-command-menu-bar
                         :menu-bar-formatter ,menu-bar-formatter
-                        :object ,object-type
                         :parent widget)))
                  (with-html (:div :class "ui hidden divider"))
                  (render menu-bar))))))))
