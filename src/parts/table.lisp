@@ -72,8 +72,7 @@
   "Extract search parameters from the request query paramenters.
 NB: parameter names are case-insensitive."
   (check-type widget table-widget)
-  (destructuring-bind (&key query status filter-by
-                         date-column start-date end-date
+  (destructuring-bind (&key query status date-column start-date end-date
                        &allow-other-keys)
       parameters
     (let* ((object-type (object-type widget))
@@ -88,7 +87,8 @@ NB: parameter names are case-insensitive."
        (when status-filter-key
          (list status-filter-key status))
        (when secondary-filter-key
-         (list secondary-filter-key filter-by))))))
+         (list secondary-filter-key
+               (getf parameters secondary-filter-key)))))))
 
 (defun request-sort-parameters (widget
                                 &optional (parameters (request-parameters)))
