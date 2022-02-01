@@ -52,11 +52,12 @@
     (setf (slot-value widget 'sort-columns) sort-columns)))
 
 (defun request-parameters ()
-  "Return the request parameters as plist."
+  "Return the request parameters as plist.
+The blank values are converted into nil."
   (let ((parameters (reblocks/request:get-parameters)))
     (loop for (key . value) in parameters
-;;           nconc (list (intern key :keyword) value))))
-          nconc (list (tkutil:string-to-keyword key) value))))
+          nconc (list (tkutil:string-to-keyword key)
+                      (unless (tkutil:blankp value) value)))))
 
 (defun date-time (string)
   (local-time:parse-timestring string :fail-on-error nil :offset (* 9 60 60)))
@@ -140,7 +141,7 @@ NB: parameter names are case-insensitive."
           (:post (lambda (&rest args)
                    (log:debug args)
                    (let* ((object-type (object-type widget))
-                          (parameters (request-search-parameters widget args))
+                          (parameters (request-search-parameters widget))
 ;;                           (url-params (encode-params parameters))
                           )
                      (log:debug parameters)
