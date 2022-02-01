@@ -151,6 +151,8 @@ NB: parameter names are case-insensitive."
 ;;                       `(setf (ps:@ window location search) ,url-params))
                      ))
            :class "ui form")
+        (render-secondary-filter-menu-bar widget)
+        (render-status-filter-menu-bar widget)
         (:div :class "inline fields"
               (:div :class "field"
                     (:div :class "ui icon input"
@@ -280,6 +282,7 @@ NB: parameter names are case-insensitive."
   (when (and key values)
     (let ((current-value (getf (search-parameters widget) key)))
       (with-html
+        (:input :type "hidden" :name key :value current-value)
         (:div :class class
               (loop for value in values
                     ;; VALUE := (value :label label)
@@ -336,8 +339,6 @@ NB: parameter names are case-insensitive."
         (search-objects widget)
       (with-html
         (unless no-filter-p
-          (render-secondary-filter-menu-bar widget)
-          (render-status-filter-menu-bar widget)
           (render-search-box widget))
         (when (> total 10)
           (render-pagination-per-page widget))
