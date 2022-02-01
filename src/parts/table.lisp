@@ -376,7 +376,7 @@ NB: parameter names are case-insensitive."
     (let ((objects (apply searcher :limit *download-limit*
                           (append search-parameters sort-parameters)))
           (stream (make-string-output-stream)))
-      (attribute:write-csv stream formatter objects)
+      (attribute:write-csv stream formatter objects object-type)
       (reblocks/response:immediate-response
        (get-output-stream-string stream)
        :content-type "text/csv"
