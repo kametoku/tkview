@@ -170,14 +170,14 @@ NB: parameter names are case-insensitive."
                                                 name)))))
               (:div :class "field"
                     (render (fui.modules:make-calendar-widget
-                             :id "start-date" :placeholder "Start Date"
-                             :end-calendar-id "end-date"
-                             :initial-date start-date)))
+                             :name "start-date" :placeholder "Start Date"
+                             :end-calendar-name "end-date"
+                             :value start-date)))
               (:div :class "field"
                     (render (fui.modules:make-calendar-widget
-                             :id "end-date" :placeholder "End Date"
-                             :start-calendar-id "start-date"
-                             :initial-date end-date)))
+                             :name "end-date" :placeholder "End Date"
+                             :start-calendar-name "start-date"
+                             :value end-date)))
               (:div :class "fields"
                     (:button :class "ui icon button" :type "submit"
                              (:i :class "search icon"))
