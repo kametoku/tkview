@@ -20,6 +20,7 @@
    (columns :reader columns) ; columns ::= ((name colname date-column-p)*)
    (date-columns :reader date-columns)  ; date-columns ::= colname*
    (sort-columns :reader sort-columns)  ; sort-columns ::= colname*
+   (default-sort :reader default-sort)
    (object-type :initarg :object-type
                 :reader object-type)
    (search-parameters :initarg :search-parameters
@@ -37,7 +38,8 @@
                 :initform nil
                 :accessor no-filter-p)))
 
-(defmethod initialize-instance :after ((widget table-widget) &rest args)
+(defmethod initialize-instance :after ((widget table-widget) &rest args
+                                       &key default-sort &allow-other-keys)
   (declare (ignore args))
   (let* ((formatter (formatter widget))
          (object-type (object-type widget))
@@ -49,7 +51,14 @@
                              collect colname)))
     (setf (slot-value widget 'columns) columns)
     (setf (slot-value widget 'date-columns) date-columns)
-    (setf (slot-value widget 'sort-columns) sort-columns)))
+    (setf (slot-value widget 'sort-columns) sort-columns)
+    (setf (slot-value widget 'default-sort)
+          (tkutil:ensure-list (or default-sort (car sort-columns))))
+    (let ((sort-column (nth 0 (default-sort widget))))
+      (when (and sort-column
+                 (not (column sort-column sort-columns)))
+        (error "Invalid sort column: ~S.~%Must be one of ~S"
+               sort-column sort-columns)))))
 
 (defun request-parameters ()
   "Return the request parameters as plist.
@@ -100,9 +109,12 @@ NB: parameter names are case-insensitive."
                        &allow-other-keys)
       parameters
     (let* ((sort-columns (sort-columns widget))
-           (sort-column-default (car sort-columns)))
+           (default-sort (default-sort widget))
+           (sort-column-default (nth 0 default-sort))
+           (sort-direction-default (nth 1 default-sort)))
       (list :sort-column (column (or sort-column sort-column-default) sort-columns)
-            :sort-direction (sort-direction (or sort-direction "desc"))
+            :sort-direction (sort-direction (or sort-direction
+                                                sort-direction-default "desc"))
             :page (tkutil:to-integer page :default 1)
             :per-page (tkutil:to-integer per-page :default 10)))))
 
@@ -390,8 +402,9 @@ NB: parameter names are case-insensitive."
       (render-table widget)))
 
 (defun make-table-widget (&rest args &key object-type formatter
-                                       searcher search-args no-filter-p)
-  (declare (ignorable object-type formatter searcher search-args no-filter-p))
+                                       searcher search-args default-sort no-filter-p)
+  (declare (ignorable object-type formatter searcher search-args default-sort
+                      no-filter-p))
   (let ((widget (apply #'make-instance 'table-widget args)))
     (setf (search-parameters widget) (request-search-parameters widget))
     (setf (sort-parameters widget) (request-sort-parameters widget))

@@ -9,14 +9,18 @@
   (:export #:define-object-list-widget))
 (in-package :tkview.parts.object-list)
 
-(defmacro define-object-list-widget (widget &key object-type searcher title icon
-                                              menu-bar-formatter)
-  "Define an object list page of WIDGET."
+(defmacro define-object-list-widget (widget &key object-type searcher default-sort
+                                              title icon menu-bar-formatter)
+  "Define an object list page of WIDGET.
+
+DEFAULT-SORT ::= :COLUMN_NAME | (:COLUMN_NAME DIRECTION)
+DIRECTION ::= :ASC | :DESC"
   `(progn
      (reblocks/widget:defwidget ,widget () ())
      (defmethod reblocks/widget:render ((widget ,widget))
        (let ((table-widget (tkview.parts.table:make-table-widget
-                            :object-type ,object-type :searcher ,searcher))
+                            :object-type ,object-type :searcher ,searcher
+                            :default-sort ,default-sort))
              (title ,title))
          (setf (reblocks/page:get-title) title)
          (with-html
