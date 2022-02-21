@@ -82,7 +82,7 @@ The blank values are converted into nil."
   "Extract search parameters from the request query paramenters.
 NB: parameter names are case-insensitive."
   (check-type widget table-widget)
-  (destructuring-bind (&key query status date-column start-date end-date
+  (destructuring-bind (&key query date-column start-date end-date
                        &allow-other-keys)
       parameters
     (let* ((object-type (object-type widget))
@@ -95,7 +95,8 @@ NB: parameter names are case-insensitive."
              :start-date (format-date (date-time start-date))
              :end-date (format-date (date-time end-date)))
        (when status-filter-key
-         (list status-filter-key status))
+         (list status-filter-key
+               (getf parameters status-filter-key)))
        (when secondary-filter-key
          (list secondary-filter-key
                (getf parameters secondary-filter-key)))))))
