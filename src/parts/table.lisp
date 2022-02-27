@@ -287,6 +287,7 @@ NB: parameter names are case-insensitive."
   (let ((onclick (reblocks/actions:make-js-action
                   (lambda (&key &allow-other-keys)
                     (setf (getf (search-parameters widget) key) value)
+                    (setf (getf (sort-parameters widget) :page) 1)
                     (update widget)))))
     (with-html
       (:a :class (if active-p "active item" "item")
