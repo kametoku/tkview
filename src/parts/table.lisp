@@ -69,7 +69,8 @@ The blank values are converted into nil."
                       (unless (tkutil:blankp value) value)))))
 
 (defun date-time (string)
-  (local-time:parse-timestring string :fail-on-error nil :offset (* 9 60 60)))
+  (tkutil:ignore-errors-log
+   (local-time:parse-timestring string :fail-on-error nil :offset (* 9 60 60))))
 
 (defun column (column valid-columns)
   (tkutil:string-to-keyword column :valid-keywords valid-columns))
