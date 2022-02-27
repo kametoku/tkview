@@ -128,12 +128,13 @@ NB: parameter names are case-insensitive."
             :page (tkutil:to-integer page :default 1)
             :per-page (tkutil:to-integer per-page :default 10)))))
 
-(defun update-by-redirect (widget &optional (parameters
-                                             (append (search-parameters widget)
-                                                     (sort-parameters widget))))
+(defun update-by-redirect (widget &key (parameters
+                                        (append (search-parameters widget)
+                                                (sort-parameters widget)))
+                                    format)
   "Redirect to the current page with query parameters."
   (check-type widget table-widget)
-  (let ((query (encode-params parameters)))
+  (let ((query (encode-params (append (list :format format) parameters))))
     (reblocks/response:redirect
      (quri:render-uri (quri:make-uri :query query)))))
 
@@ -177,7 +178,7 @@ NB: parameter names are case-insensitive."
                             (append (request-search-parameters widget args)
                                     (request-sort-parameters widget args))))
                      (setf (getf parameters :page) 1)
-                     (update-by-redirect widget parameters)))
+                     (update-by-redirect widget :parameters parameters)))
            :class "ui form")
         (render-secondary-filter-menu-bar widget)
         (render-status-filter-menu-bar widget)
@@ -219,14 +220,7 @@ NB: parameter names are case-insensitive."
                                        (lambda (&rest args)
                                          (declare (ignorable args))
                                          (update widget)
-                                         (let* ((params
-                                                  (encode-params
-                                                   (append
-                                                    (list :format "csv")
-                                                    (search-parameters widget)
-                                                    (sort-parameters widget))))
-                                                (url (format nil "?~A" params)))
-                                           (reblocks/response:redirect url))))
+                                         (update-by-redirect widget :format "csv")))
                              (:i :class "download icon"))))))))
 
 (defun render-pagination-per-page-item (widget per-page &key active)
