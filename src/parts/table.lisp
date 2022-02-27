@@ -60,9 +60,17 @@
         (error "Invalid sort column: ~S.~%Must be one of ~S"
                sort-column sort-columns)))))
 
+;; (defun get-parameters ()
+;; ;;   (reblocks/request:get-parameters))
+;;   "Read body parameters and then query parameters."
+;;   (let ((request reblocks/request::*request*))
+;;     (append (lack.request:request-body-parameters request)
+;;             (lack.request:request-query-parameters request))))
+
 (defun request-parameters ()
   "Return the request parameters as plist.
 The blank values are converted into nil."
+;;   (let ((parameters (get-parameters)))
   (let ((parameters (reblocks/request:get-parameters)))
     (loop for (key . value) in parameters
           nconc (list (tkutil:string-to-keyword key)
@@ -85,7 +93,7 @@ NB: parameter names are case-insensitive."
   (check-type widget table-widget)
   (destructuring-bind (&key query date-column start-date end-date
                        &allow-other-keys)
-      parameters
+      (append parameters (search-parameters widget))
     (let* ((object-type (object-type widget))
            (status-filter-key (getf (status-filter object-type) :key))
            (secondary-filter-key (getf (secondary-filter object-type) :key))
@@ -109,7 +117,7 @@ NB: parameter names are case-insensitive."
   (check-type widget table-widget)
   (destructuring-bind (&key sort-column sort-direction page per-page
                        &allow-other-keys)
-      parameters
+      (append parameters (sort-parameters widget))
     (let* ((sort-columns (sort-columns widget))
            (default-sort (default-sort widget))
            (sort-column-default (nth 0 default-sort))
@@ -119,6 +127,15 @@ NB: parameter names are case-insensitive."
                                                 sort-direction-default "desc"))
             :page (tkutil:to-integer page :default 1)
             :per-page (tkutil:to-integer per-page :default 10)))))
+
+(defun update-by-redirect (widget &optional (parameters
+                                             (append (search-parameters widget)
+                                                     (sort-parameters widget))))
+  "Redirect to the current page with query parameters."
+  (check-type widget table-widget)
+  (let ((query (encode-params parameters)))
+    (reblocks/response:redirect
+     (quri:render-uri (quri:make-uri :query query)))))
 
 (defun render-sort-switch (widget label column)
   (check-type widget table-widget)
@@ -136,14 +153,15 @@ NB: parameter names are case-insensitive."
                  :onclick (reblocks/actions:make-js-action
                            (lambda (&key &allow-other-keys)
                              (setf (getf (sort-parameters widget) key) value)
-                             (update widget)))
+                             (update-by-redirect widget)))
                  label
                  (:span :style "white-space:nowrap;" " " (:i :class icon)))))))
 
 (defun encode-params (parameters)
   (let ((alist (loop for (name value) on parameters by #'cddr
-                     collect (cons (tkutil:keyword-to-string name :downcase t)
-                                   (tkutil:ensure-string value)))))
+                     if value
+                       collect (cons (tkutil:keyword-to-string name :downcase t)
+                                     (tkutil:ensure-string value)))))
   (quri:url-encode-params alist)))
 
 (defun render-search-box (widget)
@@ -154,17 +172,12 @@ NB: parameter names are case-insensitive."
       (reblocks-ui/form:with-html-form
           (:post (lambda (&rest args)
                    (log:debug args)
-                   (let* ((object-type (object-type widget))
-                          (parameters (request-search-parameters widget))
-;;                           (url-params (encode-params parameters))
-                          )
-                     (log:debug parameters)
-                     (setf (search-parameters widget) parameters)
-                     (setf (getf (sort-parameters widget) :page) 1)
-                     (update widget)
-;;                      (reblocks/response:send-script
-;;                       `(setf (ps:@ window location search) ,url-params))
-                     ))
+                   (let* ((args (tkutil:remove-duplicates-plist args))
+                          (parameters
+                            (append (request-search-parameters widget args)
+                                    (request-sort-parameters widget args))))
+                     (setf (getf parameters :page) 1)
+                     (update-by-redirect widget parameters)))
            :class "ui form")
         (render-secondary-filter-menu-bar widget)
         (render-status-filter-menu-bar widget)
@@ -226,7 +239,7 @@ NB: parameter names are case-insensitive."
                         (let ((sort-parameters (sort-parameters widget)))
                           (setf (getf sort-parameters :page) 1)
                           (setf (getf sort-parameters :per-page) per-page))
-                        (update widget)))
+                        (update-by-redirect widget)))
             per-page))))
 
 (defun render-pagination-per-page (widget)
@@ -250,7 +263,7 @@ NB: parameter names are case-insensitive."
                :onclick (reblocks/actions:make-js-action
                          (lambda (&key &allow-other-keys)
                            (setf (getf (sort-parameters widget) :page) page)
-                           (update widget)))
+                           (update-by-redirect widget)))
                (if (stringp text) (:raw text) text))))))
 
 (defun render-pagination (widget total)
@@ -288,7 +301,7 @@ NB: parameter names are case-insensitive."
                   (lambda (&key &allow-other-keys)
                     (setf (getf (search-parameters widget) key) value)
                     (setf (getf (sort-parameters widget) :page) 1)
-                    (update widget)))))
+                    (update-by-redirect widget)))))
     (with-html
       (:a :class (if active-p "active item" "item")
           :onclick onclick label))))
