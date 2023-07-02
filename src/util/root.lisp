@@ -27,7 +27,7 @@
   (make-instance 'root-widget :children children))
 
 (defun root ()
-  (reblocks/widgets/root:get))
+  (reblocks/page:page-root-widget (reblocks/page:current-page)))
 
 (defun find-child (type &key (key #'type-of))
   "Find a child of the root widget whose type is TYPE."

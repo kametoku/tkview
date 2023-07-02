@@ -219,7 +219,8 @@ to show the result in flash or toast."
      (when (%on-show widget)
        (apply (%on-show widget) widget (object widget) args))
      (cond ((rendered-p widget) (update widget))
-           (t (update widget :inserted-after (reblocks/widgets/root:get))
+           (t (update widget
+                :inserted-after (reblocks/page:page-root-widget (reblocks/page:current-page)))
               (setf (rendered-p widget) t)))
      (tkview.util.flash:flash-now)
      (reblocks/response:send-script
